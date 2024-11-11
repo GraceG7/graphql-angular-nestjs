@@ -1,0 +1,6 @@
+/angular/.angular
+/angular/node_modules
+/nestjs/dist
+/nestjs/node_modules
+
+.vscode
