@@ -22,13 +22,11 @@ export class PostGraphileMiddleware implements NestMiddleware {
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.slice(7, authHeader.length); // Extract JWT token
       const decodedHeader = jwt.decode(token, { complete: true });
-
       if (!decodedHeader || typeof decodedHeader === 'string') {
         return res.status(401).send('Invalid token');
       }
 
       const kid = decodedHeader.header.kid;
-
       try {
         // Fetch the signing key
         const key = await this.jwksClient.getSigningKey(kid);
