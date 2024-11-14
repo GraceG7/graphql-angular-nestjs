@@ -32,16 +32,10 @@ export class ApolloSandboxComponent {
             initialSubscriptionEndpoint: `ws://localhost:3000/postgraphile/graphql`,
             endpointIsEditable: false,
             initialState: {
+              sharedHeaders: {
+                Authorization: `Bearer ${token}`,
+              },
               pollForSchemaUpdates: false,
-            },
-            handleRequest: (endpointUrl, options) => {
-              return fetch(endpointUrl, {
-                ...options,
-                headers: {
-                  ...options.headers,
-                  authorization: `Bearer ${token}`,
-                },
-              });
             },
           });
         }
