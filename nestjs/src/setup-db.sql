@@ -1,4 +1,4 @@
-CREATE TABLE "data" (
+CREATE TABLE public."data" (
     id SERIAL PRIMARY KEY,
     message TEXT NOT NULL
 );
