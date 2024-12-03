@@ -1,8 +1,14 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { postgraphile } from 'postgraphile';
+import {
+  postgraphile,
+  makePluginHook,
+  makeExtendSchemaPlugin,
+  gql,
+} from 'postgraphile';
 import * as jwt from 'jsonwebtoken';
 import { JwksClient } from 'jwks-rsa';
+import PgPubsub from '@graphile/pg-pubsub';
 
 @Injectable()
 export class PostGraphileMiddleware implements NestMiddleware {
@@ -41,14 +47,60 @@ export class PostGraphileMiddleware implements NestMiddleware {
             if (err) {
               return res.status(401).send('Unauthorized');
             }
+
+            const schemaName = 'public';
+            const pluginHook = makePluginHook([PgPubsub]);
             const postgraphileMiddleware = postgraphile(
               'postgresql://postgres:password@localhost:6432/postgres',
-              'public',
+              schemaName,
               {
+                pluginHook,
+                appendPlugins: [
+                  makeExtendSchemaPlugin(({ pgSql: sql }) => ({
+                    typeDefs: gql`
+                      type NotifyEvent {
+                        id: Int,
+                        message: String,
+                      }
+                      type DataSubscription {
+                        operation: String,
+                        old: NotifyEvent,
+                        new: NotifyEvent
+                      }
+                      extend type Subscription {
+                        data: DataSubscription
+                          @pgSubscription(topic: "postgraphile:${schemaName}.data"),
+                        allDatas: [Datum]
+                          @pgSubscription(topic: "postgraphile:${schemaName}.data")
+                      }
+                    `,
+                    resolvers: {
+                      Subscription: {
+                        allDatas: {
+                          async resolve(
+                            _event,
+                            _args,
+                            _context,
+                            { graphile: { selectGraphQLResultFromTable } },
+                          ) {
+                            // Re-query the `data` table to get the latest relevant data
+                            const rows = await selectGraphQLResultFromTable(
+                              sql.identifier(schemaName, 'data'),
+                              (_tableAlias, _sqlBuilder) => {
+                                // This function is currently empty but may be used for future filtering or modifications.
+                              },
+                            );
+                            return rows;
+                          },
+                        },
+                      },
+                    },
+                  })),
+                ],
+                subscriptions: true,
                 disableDefaultMutations: true,
               },
             );
-
             return postgraphileMiddleware(req, res, next);
           },
         );
