@@ -33,3 +33,9 @@ cd nestjs
 npm install
 npm run start
 ```
+
+### Blog Posts
+
+https://medium.com/@gracegan_7/graphql-apis-with-postgraphile-auth0-in-nestjs-26b4cef7cded
+https://medium.com/@gracegan_7/apollo-sandbox-in-angular-with-auth0-839d6ebf5d23
+https://medium.com/@gracegan_7/custom-subscription-with-postgraphile-in-nestjs-3f26440e3154
