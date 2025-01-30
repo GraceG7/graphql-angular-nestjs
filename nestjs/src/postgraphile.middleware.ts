@@ -9,6 +9,7 @@ import {
 import * as jwt from 'jsonwebtoken';
 import { JwksClient } from 'jwks-rsa';
 import PgPubsub from '@graphile/pg-pubsub';
+import ConnectionFilterPlugin = require('postgraphile-plugin-connection-filter');
 
 @Injectable()
 export class PostGraphileMiddleware implements NestMiddleware {
@@ -96,7 +97,12 @@ export class PostGraphileMiddleware implements NestMiddleware {
                       },
                     },
                   })),
+                  ConnectionFilterPlugin,
                 ],
+                graphileBuildOptions: {
+                  connectionFilterArrays: false,
+                  connectionFilterComputedColumns: false,
+                },
                 subscriptions: true,
                 disableDefaultMutations: true,
               },
