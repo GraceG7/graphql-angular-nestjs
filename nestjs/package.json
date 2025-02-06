@@ -26,7 +26,6 @@
     "@nestjs/config": "^3.3.0",
     "@nestjs/core": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
-    "compression": "^1.7.5",
     "jwks-rsa": "^3.1.0",
     "postgraphile": "^4.13.0",
     "postgraphile-plugin-connection-filter": "^2.3.0",
